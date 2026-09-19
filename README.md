@@ -7,3 +7,6 @@
   → система отправляет уведомления
 
 Команда запуска mvnw.cmd spring-boot:run. После запуска откройте http://localhost:8080/api/ping
+
+БД:
+psql -h localhost -p 5432 -U postgres -d social_media
