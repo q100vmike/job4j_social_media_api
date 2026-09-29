@@ -1,0 +1,38 @@
+post:
+  summary: Отклонить предложение дружбы
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+  responses:
+    '200':
+      description: Предложение дружбы отклонено (статус → REJECTED)
+    '400':
+      description: Некорректные входные данные
+    '404':
+      description: Пользователь не найден
+    '409':
+      description: Заявка не в статусе PENDING
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+              - message
+            properties:
+              code:
+                type: string
+                example: OFFER_FRIENDSHIP_WRONG_STATUS
+              message:
+                type: string
+                example: Заявка не в статусе PENDING

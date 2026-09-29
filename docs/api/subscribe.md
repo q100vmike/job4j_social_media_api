@@ -1,11 +1,6 @@
 API:
-GET /api/subscribes/followers
+GET /api/subscribes/followers?id=1
 Content-Type: application/json
-
-	Тело HTTP-запроса:
-		{
-		"Id": 1
-		}
 
 	Ответ:
 	HTTP/1.1 200 OK
@@ -14,19 +9,14 @@ Content-Type: application/json
 	Массив JSON-объектов, каждый из которых содержит 
 	идентификаторы пользователей подписанных на запрошенного:
 		[
-		{ "Id": 1 },
-		{ "Id": 2 },
-		{ "Id": 3 }
+		{ "id": 1 },
+		{ "id": 2 },
+		{ "id": 3 }
 		]
 
 API:
-GET /api/subscribes
+GET /api/subscribes?id=1
 Content-Type: application/json
-
-	Тело HTTP-запроса:
-		{
-		"Id": 1
-		}
 
 	Ответ:
 	HTTP/1.1 200 OK
@@ -35,7 +25,7 @@ Content-Type: application/json
 	Массив JSON-объектов, каждый содержит 
 	идентификаторы пользователей на которых подписан запрошенный:
 		[
-		{ "Id": 1 },
-		{ "Id": 2 },
-		{ "Id": 3 }
+		{ "id": 1 },
+		{ "id": 2 },
+		{ "id": 3 }
 		]

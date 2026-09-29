@@ -47,8 +47,7 @@ Content-Type: application/json
 
 	Тело HTTP-запроса:
 		{
-		"Id": 1,
-		"status": "ACCEPTED"
+		"Id": 1
 		}
 
 	В результате заявка переводится в статус ACCEPTED:
@@ -89,8 +88,7 @@ Content-Type: application/json
 
 	Тело HTTP-запроса:
 		{
-		"Id": 1,
-		"status": "REJECTED"
+		"Id": 1
 		}
 
 	В результате заявка переводится в статус REJECTED:
@@ -119,13 +117,8 @@ Content-Type: application/json
 			}
 
 API:
-GET /api/offer-friendships/incoming
+GET /api/offer-friendships/incoming?id=1
 Content-Type: application/json
-
-	Тело HTTP-запроса:
-		{
-		"Id": 1
-		}
 
 	Ответ:
 		HTTP/1.1 200 OK
@@ -134,18 +127,13 @@ Content-Type: application/json
 		Массив JSON-объектов, каждый из которых содержит идентификаторы 
 		предложивших дружбу:
 		[
-		{ "Id": 1 },
-		{ "Id": 2 },
-		{ "Id": 3 }
+		{ "id": 1 },
+		{ "id": 2 },
+		{ "id": 3 }
 		]
 API:
-GET /api/offer-friendships/outgoing;
+GET /api/offer-friendships/outgoing?id=1;
 Content-Type: application/json
-
-	Тело HTTP-запроса:
-	{
-	"Id": 1
-	}
 
 	Ответ:
 	HTTP/1.1 200 OK
@@ -153,7 +141,7 @@ Content-Type: application/json
 
 	Массив JSON-объектов, каждый из которых содержит идентификаторы кому предложена дружба:
 	[
-	{ "Id": 1 },
-	{ "Id": 2 },
-	{ "Id": 3 }
+	{ "id": 1 },
+	{ "id": 2 },
+	{ "id": 3 }
 	]
