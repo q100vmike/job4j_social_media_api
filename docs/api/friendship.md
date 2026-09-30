@@ -1,5 +1,5 @@
 API:
-GET /api/friendships?id=1;
+GET /api/friendships?user_id=1;
 Content-Type: application/json
 
 	Ответ:
@@ -8,7 +8,7 @@ Content-Type: application/json
 
 	Массив JSON-объектов, каждый из которых содержит идентификаторы друзей:
 	[
-	{ "id": 1 },
-	{ "id": 2 },
-	{ "id": 3 }
+	{ "user_id": 1 },
+	{ "user_id": 2 },
+	{ "user_id": 3 }
 	]

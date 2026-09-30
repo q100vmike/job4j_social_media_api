@@ -13,7 +13,7 @@ Content-Type: application/json
 		Content-Type: application/json
 
 		{
-		"id": 10,
+		"offer_id": 10,
 		"fromUserId": 1,
 		"toUserId": 2,
 		"status": "PENDING",
@@ -38,8 +38,21 @@ Content-Type: application/json
 			"instance": "/api/offer-friendships/create"
 			}
 
-		заявка на дружбу существует
+		заявка на дружбу существует в статусе PENDING
 			HTTP/1.1 204 No Content
+
+		заявка на дружбу существует в статусе ACCEPTED
+			HTTP/1.1 204 No Content
+
+		заявка на дружбу существует в статусе REJECTED
+			HTTP/1.1 409 Conflict
+                Content-Type: application/problem+json
+                {
+                "title": "Friendship wrong status",
+                "status": 409,
+                "detail": "Заявка в статусе REJECT",
+                "instance": "/api/offer-friendships/create"
+                }
 
 API:
 POST /api/offer-friendships/accept
@@ -47,10 +60,10 @@ Content-Type: application/json
 
 	Тело HTTP-запроса:
 		{
-		"Id": 1
+		"offer_id": 1
 		}
 
-	В результате заявка переводится в статус ACCEPTED:
+	В результате заявка в статусе PENDING переводится в статус ACCEPTED:
 		HTTP/1.1 200 OK
 		Content-Type: application/json
 
@@ -72,15 +85,21 @@ Content-Type: application/json
 			"instance": "/api/offer-friendships/accept"
 			}
 
-		Заявка не в статусе PENDING
+		Заявка в статусе ACCEPT
+            HTTP/1.1 204 No Content
+            Content-Type: application/json
+			}
+
+		Заявка не в статусе REJECT
 			HTTP/1.1 409 Conflict
 			Content-Type: application/problem+json
 			{
 			"title": "Friendship wrong status",
-			"status": 404,
-			"detail": "Заявка не в статусе PENDING",
+			"status": 409,
+			"detail": "Заявка в статусе REJECT",
 			"instance": "/api/offer-friendships/accept"
 			}
+
 
 API:
 POST /api/offer-friendships/reject
@@ -88,10 +107,10 @@ Content-Type: application/json
 
 	Тело HTTP-запроса:
 		{
-		"Id": 1
+		"offer_id": 1
 		}
 
-	В результате заявка переводится в статус REJECTED:
+	Заявка в статусе PENDING переводится в статус REJECTED:
 		HTTP/1.1 200 OK
 		Content-Type: application/json
 
@@ -103,21 +122,25 @@ Content-Type: application/json
 			"title": "No Friendship Exist",
 			"status": 404,
 			"detail": "Заявка не найдена",
-			"instance": "/api/offer-friendships/accept"
+			"instance": "/api/offer-friendships/reject"
 			}
 
-		Заявка не в статусе PENDING
+        Заявка в статусе REJECT
+            HTTP/1.1 204 No Content
+            Content-Type: application/json
+
+		Заявка в статусе ACCEPT
 			HTTP/1.1 409 Conflict
 			Content-Type: application/problem+json
 			{
 			"title": "Friendship wrong status",
-			"status": 404,
-			"detail": "Заявка не в статусе PENDING",
-			"instance": "/api/offer-friendships/accept"
+			"status": 409,
+			"detail": "Заявка в статусе ACCEPT",
+			"instance": "/api/offer-friendships/reject"
 			}
 
 API:
-GET /api/offer-friendships/incoming?id=1
+GET /api/offer-friendships/incoming?user_id=1
 Content-Type: application/json
 
 	Ответ:
@@ -127,12 +150,12 @@ Content-Type: application/json
 		Массив JSON-объектов, каждый из которых содержит идентификаторы 
 		предложивших дружбу:
 		[
-		{ "id": 1 },
-		{ "id": 2 },
-		{ "id": 3 }
+		{ "user_id": 1 },
+		{ "user_id": 2 },
+		{ "user_id": 3 }
 		]
 API:
-GET /api/offer-friendships/outgoing?id=1;
+GET /api/offer-friendships/outgoing?user_id=1;
 Content-Type: application/json
 
 	Ответ:
@@ -141,7 +164,7 @@ Content-Type: application/json
 
 	Массив JSON-объектов, каждый из которых содержит идентификаторы кому предложена дружба:
 	[
-	{ "id": 1 },
-	{ "id": 2 },
-	{ "id": 3 }
+	{ "user_id": 1 },
+	{ "user_id": 2 },
+	{ "user_id": 3 }
 	]
