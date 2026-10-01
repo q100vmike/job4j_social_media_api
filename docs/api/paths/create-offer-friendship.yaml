@@ -26,13 +26,13 @@ post:
           schema:
             type: object
             required:
-              - id
+              - offerId
               - fromUserId
               - toUserId
               - status
               - createdAt
             properties:
-              id:
+              offerId:
                 type: integer
                 format: int64
                 example: 10
@@ -53,9 +53,11 @@ post:
                 format: date-time
                 example: '2026-09-22T10:15:00Z'
     '204':
-      description: Предложение уже создано или дружба уже существует
+        description: |
+            Заявка на дружбу уже существует в статусе PENDING или ACCEPTED —
+            повторное создание не требуется.
     '400':
-      description: Некорректные входные данные
+        description: Некорректные входные данные
     '404':
       description: Пользователь не найден
     '409':
