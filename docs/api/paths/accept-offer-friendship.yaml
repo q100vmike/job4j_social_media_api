@@ -16,23 +16,59 @@ post:
   responses:
     '200':
       description: Предложение дружбы принято (статус → ACCEPTED), создана подписка
-    '400':
-      description: Некорректные входные данные
-    '404':
-      description: Пользователь не найден
-    '409':
-      description: Заявка не в статусе PENDING
+    '204':
+      description: Заявка уже в статусе ACCEPT
       content:
         application/json:
           schema:
             type: object
+    '400':
+      description: Некорректные входные данные
+    '404':
+      description: Заявка не найдена
+      content:
+        application/problem+json:
+          schema:
+            type: object
             required:
-              - code
-              - message
+              - title
+              - status
+              - detail
+              - instance
             properties:
-              code:
+              title:
                 type: string
-                example: OFFER_FRIENDSHIP_WRONG_STATUS
-              message:
+                example: No Friendship Exist
+              status:
+                type: integer
+                example: 404
+              detail:
                 type: string
-                example: Заявка не в статусе PENDING
+                example: Заявка не найдена
+              instance:
+                type: string
+                example: /api/offer-friendships/accept
+    '409':
+      description: Заявка не в статусе PENDING
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            required:
+              - title
+              - status
+              - detail
+              - instance
+            properties:
+              title:
+                type: string
+                example: Friendship wrong status
+              status:
+                type: integer
+                example: 409
+              detail:
+                type: string
+                example: Заявка в статусе REJECT
+              instance:
+                type: string
+                example: /api/offer-friendships/accept

@@ -53,26 +53,56 @@ post:
                 format: date-time
                 example: '2026-09-22T10:15:00Z'
     '204':
-        description: |
-            Заявка на дружбу уже существует в статусе PENDING или ACCEPTED —
-            повторное создание не требуется.
+      description: |
+        Заявка на дружбу уже существует в статусе PENDING или ACCEPTED —
+        повторное создание не требуется.
     '400':
-        description: Некорректные входные данные
+      description: Некорректные входные данные
     '404':
-      description: Пользователь не найден
-    '409':
-      description: Предложение дружбы уже отклонено
+      description: Целевой пользователь не найден
       content:
-        application/json:
+        application/problem+json:
           schema:
             type: object
             required:
-              - code
-              - message
+              - title
+              - status
+              - detail
+              - instance
             properties:
-              code:
+              title:
                 type: string
-                example: OFFER_FRIENDSHIP_ALREADY_REJECTED
-              message:
+                example: No Target User
+              status:
+                type: integer
+                example: 404
+              detail:
                 type: string
-                example: Отклонённое предложение дружбы нельзя создать повторно
+                example: Целевой пользователь не найден
+              instance:
+                type: string
+                example: /api/offer-friendships/create
+    '409':
+      description: Заявка на дружбу уже существует в статусе REJECTED
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            required:
+              - title
+              - status
+              - detail
+              - instance
+            properties:
+              title:
+                type: string
+                example: Friendship wrong status
+              status:
+                type: integer
+                example: 409
+              detail:
+                type: string
+                example: Заявка в статусе REJECT
+              instance:
+                type: string
+                example: /api/offer-friendships/create
