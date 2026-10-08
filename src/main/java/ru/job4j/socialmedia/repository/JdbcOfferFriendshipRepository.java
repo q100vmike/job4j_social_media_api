@@ -40,7 +40,7 @@ public class JdbcOfferFriendshipRepository
                 request.id(),
                 request.fromUserId(),
                 request.toUserId(),
-                request.status(),
+                request.status().name(),
                 java.sql.Timestamp.from(request.createdAt()),
                 java.sql.Timestamp.from(request.updatedAt())
         );
