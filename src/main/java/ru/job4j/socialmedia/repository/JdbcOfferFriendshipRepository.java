@@ -33,7 +33,7 @@ public class JdbcOfferFriendshipRepository
                         resultSet.getObject("id", java.util.UUID.class),
                         resultSet.getObject("from_user_id", java.util.UUID.class),
                         resultSet.getObject("to_user_id", java.util.UUID.class),
-                        resultSet.getString("status"),
+                        Status.valueOf(resultSet.getString("status")),
                         resultSet.getTimestamp("created_at").toInstant(),
                         resultSet.getTimestamp("updated_at").toInstant()
                 ),
