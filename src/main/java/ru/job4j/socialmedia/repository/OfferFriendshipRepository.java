@@ -12,7 +12,7 @@ public interface OfferFriendshipRepository {
             UUID id,
             UUID fromUserId,
             UUID toUserId,
-            String status,
+            Status status,
             Instant createdAt,
             Instant updatedAt
     ) {
@@ -22,9 +22,15 @@ public interface OfferFriendshipRepository {
             UUID id,
             UUID fromUserId,
             UUID toUserId,
-            String status,
+            Status status,
             Instant createdAt,
             Instant updatedAt
     ) {
+    }
+
+    enum Status {
+        PENDING,
+        ACCEPTED,
+        REJECTED
     }
 }
