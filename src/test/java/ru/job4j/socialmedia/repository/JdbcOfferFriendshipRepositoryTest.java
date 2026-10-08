@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static ru.job4j.socialmedia.repository.OfferFriendshipRepository.Status.PENDING;
 
 @Testcontainers
 @SpringBootTest
@@ -21,8 +22,8 @@ class JdbcOfferFriendshipRepositoryTest {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:17");
+    static PostgreSQLContainer postgres =
+            new PostgreSQLContainer("postgres:17");
 
     @Autowired
     private OfferFriendshipRepository repository;
@@ -37,7 +38,7 @@ class JdbcOfferFriendshipRepositoryTest {
                 id,
                 fromUserId,
                 toUserId,
-                "PENDING",
+                PENDING,
                 now,
                 now
         );
@@ -49,7 +50,7 @@ class JdbcOfferFriendshipRepositoryTest {
                 id,
                 fromUserId,
                 toUserId,
-                "PENDING",
+                PENDING,
                 now,
                 now
         );
@@ -61,11 +62,11 @@ class JdbcOfferFriendshipRepositoryTest {
         var fromUserId = UUID.randomUUID();
         var toUserId = UUID.randomUUID();
         repository.createOfferFriendship(request(
-                UUID.randomUUID(), fromUserId, toUserId, "PENDING"
+                UUID.randomUUID(), fromUserId, toUserId, PENDING
         ));
 
         assertThatThrownBy(() -> repository.createOfferFriendship(request(
-                UUID.randomUUID(), fromUserId, toUserId, "PENDING"
+                UUID.randomUUID(), fromUserId, toUserId, PENDING
         ))).isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -74,10 +75,10 @@ class JdbcOfferFriendshipRepositoryTest {
         var userId = UUID.randomUUID();
 
         assertThatThrownBy(() -> repository.createOfferFriendship(request(
-                UUID.randomUUID(), userId, userId, "PENDING"
+                UUID.randomUUID(), userId, userId, PENDING
         ))).isInstanceOf(DataIntegrityViolationException.class);
     }
-
+/* теряет смысл?
     @Test
     void whenCreateOfferFriendshipWithUnknownStatusThenThrowException() {
         assertThatThrownBy(() -> repository.createOfferFriendship(request(
@@ -87,16 +88,17 @@ class JdbcOfferFriendshipRepositoryTest {
                 "UNKNOWN"
         ))).isInstanceOf(DataIntegrityViolationException.class);
     }
-
+*/
     private OfferFriendshipRepository.CreateOfferFriendshipRequest request(
             UUID id,
             UUID fromUserId,
             UUID toUserId,
-            String status
+            OfferFriendshipRepository.Status status
     ) {
         var now = Instant.parse("2026-09-22T10:15:00Z");
         return new OfferFriendshipRepository.CreateOfferFriendshipRequest(
                 id, fromUserId, toUserId, status, now, now
         );
     }
+
 }
