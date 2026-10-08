@@ -31,4 +31,19 @@ docs/api/openapi.yaml
 
 Таблица subscriptions - индекс по follower_id и индекс по followed_id
 Используется для поиска исходящих либо входящих запросов в друзья по user_id 
-	
+
+Почему PostgreSQL а не H2
+Репозиторий использует возможности PostgreSQL: тип UUID, TIMESTAMPTZ, ограничения и конструкцию INSERT ... RETURNING. H2 отличается от PostgreSQL синтаксисом и поведением. 
+Тест может пройти на H2, а затем завершиться ошибкой в рабочей базе.
+Testcontainers запускает временный PostgreSQL в Docker. Разработчик и CI получают одинаковую СУБД и изолированную базу без ручной настройки общего тестового сервера.
+
+@Testcontainers подключает управление контейнерами к JUnit Jupiter;
+@Container указывает, что поле описывает контейнер теста;
+static запускает один PostgreSQL на весь тестовый класс;
+@ServiceConnection передаёт Spring Boot URL, имя пользователя и пароль контейнера;
+@SpringBootTest создаёт контекст приложения, запускает Liquibase и позволяет внедрить настоящий репозиторий.
+
+Запуск тестов для Win
+mvnw.cmd test
+Результат
+Maven выполнил все методы JdbcOfferFriendshipRepositoryTest, а Testcontainers остановил временный PostgreSQL
