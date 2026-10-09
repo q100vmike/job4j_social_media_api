@@ -1,10 +1,13 @@
 package ru.job4j.socialmedia.repository;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DataIntegrityViolationException;
+import ru.job4j.socialmedia.exception.OfferFriendshipAlreadyExistsException;
+import ru.job4j.socialmedia.exception.SelfFriendshipException;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -67,7 +70,7 @@ class JdbcOfferFriendshipRepositoryTest {
 
         assertThatThrownBy(() -> repository.createOfferFriendship(request(
                 UUID.randomUUID(), fromUserId, toUserId, PENDING
-        ))).isInstanceOf(DataIntegrityViolationException.class);
+        ))).isInstanceOf(OfferFriendshipAlreadyExistsException.class);
     }
 
     @Test
@@ -76,19 +79,20 @@ class JdbcOfferFriendshipRepositoryTest {
 
         assertThatThrownBy(() -> repository.createOfferFriendship(request(
                 UUID.randomUUID(), userId, userId, PENDING
-        ))).isInstanceOf(DataIntegrityViolationException.class);
+        ))).isInstanceOf(SelfFriendshipException.class);
     }
-/* теряет смысл?
+
     @Test
+    @Disabled("Тест отключён: теряет смысл если значение status стало перечислимым типом")
     void whenCreateOfferFriendshipWithUnknownStatusThenThrowException() {
         assertThatThrownBy(() -> repository.createOfferFriendship(request(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),
-                "UNKNOWN"
+                OfferFriendshipRepository.Status.valueOf("UNKNOWN")
         ))).isInstanceOf(DataIntegrityViolationException.class);
     }
-*/
+
     private OfferFriendshipRepository.CreateOfferFriendshipRequest request(
             UUID id,
             UUID fromUserId,
