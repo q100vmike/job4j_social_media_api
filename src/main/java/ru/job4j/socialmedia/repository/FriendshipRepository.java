@@ -1,6 +1,7 @@
 package ru.job4j.socialmedia.repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public interface FriendshipRepository {
@@ -25,4 +26,8 @@ public interface FriendshipRepository {
             Instant createdAt
     ) {
     }
+
+    List<UUID> findFriendships(
+            UUID userId
+    );
 }
