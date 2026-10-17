@@ -61,6 +61,76 @@ class JdbcOfferFriendshipRepositoryTest {
     }
 
     @Test
+    void whenFind2IncomingOfferFriendships(){
+        var id = UUID.randomUUID();
+        var fromUserId = UUID.randomUUID();
+        var toUserId = UUID.randomUUID();
+        var id2 = UUID.randomUUID();
+        var fromUserId2 = UUID.randomUUID();
+        var now = Instant.parse("2026-09-22T10:15:00Z");
+        var request = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
+                id,
+                fromUserId,
+                toUserId,
+                PENDING,
+                now,
+                now
+        );
+        var request2 = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
+                id2,
+                fromUserId2,
+                toUserId,
+                PENDING,
+                now,
+                now
+        );
+
+        repository.createOfferFriendship(request);
+        repository.createOfferFriendship(request2);
+
+        var list = repository.findIncomingOfferFriendships(toUserId);
+        assertThat(list)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(fromUserId, fromUserId2);
+
+    }
+
+    @Test
+    void whenFind2OutOfferFriendships(){
+        var id = UUID.randomUUID();
+        var fromUserId = UUID.randomUUID();
+        var toUserId = UUID.randomUUID();
+        var id2 = UUID.randomUUID();
+        var toUserId2 = UUID.randomUUID();
+        var now = Instant.parse("2026-09-22T10:15:00Z");
+        var request = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
+                id,
+                fromUserId,
+                toUserId,
+                PENDING,
+                now,
+                now
+        );
+        var request2 = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
+                id2,
+                fromUserId,
+                toUserId2,
+                PENDING,
+                now,
+                now
+        );
+
+        repository.createOfferFriendship(request);
+        repository.createOfferFriendship(request2);
+
+        var list = repository.findOutgoingOfferFriendships(fromUserId);
+        assertThat(list)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(toUserId, toUserId2);
+
+    }
+
+    @Test
     void whenCreateDuplicateOfferFriendshipThenThrowException() {
         var fromUserId = UUID.randomUUID();
         var toUserId = UUID.randomUUID();

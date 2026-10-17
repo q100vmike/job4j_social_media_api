@@ -3,9 +3,6 @@ package ru.job4j.socialmedia.repository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.job4j.socialmedia.exception.FriendshipAlreadyExistsException;
-import ru.job4j.socialmedia.exception.OfferFriendshipAlreadyExistsException;
-import ru.job4j.socialmedia.exception.OfferFriendshipNotFoundException;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
 
 import java.util.List;
@@ -42,11 +39,11 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
     }
 
     @Override
-    public FriendshipRepository.CreateFriendshipResponse createFriendship(FriendshipRepository.CreateFriendshipRequest request) {
+    public CreateFriendshipResponse createFriendship(CreateFriendshipRequest request) {
         try {
             return jdbcTemplate.queryForObject(
                     CREATE,
-                    (resultSet, rowNum) -> new FriendshipRepository.CreateFriendshipResponse(
+                    (resultSet, rowNum) -> new CreateFriendshipResponse(
                             resultSet.getObject("id", java.util.UUID.class),
                             resultSet.getObject("first_user_id", java.util.UUID.class),
                             resultSet.getObject("second_user_id", java.util.UUID.class),
@@ -63,15 +60,6 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
             var message = e.getMostSpecificCause().getMessage();
             if (message != null && message.contains("chk_friendship_users")) {
                 throw new SelfFriendshipException(message);
-            }
-            if (message != null && message.contains("uq_friendships_users")) {
-                throw new FriendshipAlreadyExistsException(message);
-            }
-            if (message != null && message.contains("uq_friendships_offer_friendship")) {
-                throw new FriendshipAlreadyExistsException(message);
-            }
-            if (message != null && message.contains("fk_friendships_offer_friendship")) {
-                throw new OfferFriendshipNotFoundException(message);
             }
             throw e;
         }

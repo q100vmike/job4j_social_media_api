@@ -1,6 +1,7 @@
 package ru.job4j.socialmedia.repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public interface OfferFriendshipRepository {
@@ -33,4 +34,12 @@ public interface OfferFriendshipRepository {
         ACCEPTED,
         REJECTED
     }
+
+    List<UUID> findIncomingOfferFriendships(
+            UUID userId
+    );
+
+    List<UUID> findOutgoingOfferFriendships(
+            UUID userId
+    );
 }
