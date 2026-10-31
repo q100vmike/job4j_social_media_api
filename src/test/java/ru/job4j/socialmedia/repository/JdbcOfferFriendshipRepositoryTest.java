@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DataIntegrityViolationException;
+import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 import ru.job4j.socialmedia.exception.OfferFriendshipAlreadyExistsException;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -38,96 +39,66 @@ class JdbcOfferFriendshipRepositoryTest {
         var toUserId = UUID.randomUUID();
         var now = Instant.parse("2026-09-22T10:15:00Z");
         var request = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
-                id,
-                fromUserId,
-                toUserId,
-                PENDING,
-                now,
-                now
+                id, fromUserId, toUserId, PENDING, now, now
         );
 
         var result = repository.createOfferFriendship(request);
 
         var expected = new OfferFriendshipRepository
                 .CreateOfferFriendshipResponse(
-                id,
-                fromUserId,
-                toUserId,
-                PENDING,
-                now,
-                now
+                id, fromUserId, toUserId, PENDING, now, now
         );
         assertThat(result).isEqualTo(expected);
     }
 
     @Test
-    void whenFind2IncomingOfferFriendships(){
-        var id = UUID.randomUUID();
-        var fromUserId = UUID.randomUUID();
+    void whenFind2IncomingOfferFriendships() {
+        var id1 = UUID.randomUUID();
+        var fromUserId1 = UUID.randomUUID();
         var toUserId = UUID.randomUUID();
         var id2 = UUID.randomUUID();
         var fromUserId2 = UUID.randomUUID();
         var now = Instant.parse("2026-09-22T10:15:00Z");
-        var request = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
-                id,
-                fromUserId,
-                toUserId,
-                PENDING,
-                now,
-                now
-        );
-        var request2 = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
-                id2,
-                fromUserId2,
-                toUserId,
-                PENDING,
-                now,
-                now
-        );
 
-        repository.createOfferFriendship(request);
-        repository.createOfferFriendship(request2);
+        repository.createOfferFriendship(new OfferFriendshipRepository
+                .CreateOfferFriendshipRequest(id1, fromUserId1, toUserId, PENDING, now, now));
+        repository.createOfferFriendship(new OfferFriendshipRepository
+                .CreateOfferFriendshipRequest(id2, fromUserId2, toUserId, PENDING, now, now));
 
         var list = repository.findIncomingOfferFriendships(toUserId);
+
+        var expected1 = offerFriendshipEntity(id1, fromUserId1, toUserId, OfferFriendshipEntity.Status.PENDING, now);
+        var expected2 = offerFriendshipEntity(id2, fromUserId2, toUserId, OfferFriendshipEntity.Status.PENDING, now);
+
         assertThat(list)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(fromUserId, fromUserId2);
-
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expected1, expected2);
     }
 
     @Test
-    void whenFind2OutOfferFriendships(){
-        var id = UUID.randomUUID();
+    void whenFind2OutOfferFriendships() {
+        var id1 = UUID.randomUUID();
         var fromUserId = UUID.randomUUID();
-        var toUserId = UUID.randomUUID();
+        var toUserId1 = UUID.randomUUID();
         var id2 = UUID.randomUUID();
         var toUserId2 = UUID.randomUUID();
         var now = Instant.parse("2026-09-22T10:15:00Z");
-        var request = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
-                id,
-                fromUserId,
-                toUserId,
-                PENDING,
-                now,
-                now
-        );
-        var request2 = new OfferFriendshipRepository.CreateOfferFriendshipRequest(
-                id2,
-                fromUserId,
-                toUserId2,
-                PENDING,
-                now,
-                now
-        );
 
-        repository.createOfferFriendship(request);
-        repository.createOfferFriendship(request2);
+        repository.createOfferFriendship(new OfferFriendshipRepository
+                .CreateOfferFriendshipRequest(id1, fromUserId, toUserId1, PENDING, now, now));
+        repository.createOfferFriendship(new OfferFriendshipRepository
+                .CreateOfferFriendshipRequest(id2, fromUserId, toUserId2, PENDING, now, now));
 
         var list = repository.findOutgoingOfferFriendships(fromUserId);
+
+        var expected1 = offerFriendshipEntity(id1, fromUserId, toUserId1, OfferFriendshipEntity.Status.PENDING, now);
+        var expected2 = offerFriendshipEntity(id2, fromUserId, toUserId2, OfferFriendshipEntity.Status.PENDING, now);
+
         assertThat(list)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(toUserId, toUserId2);
-
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expected1, expected2);
     }
 
     @Test
@@ -175,4 +146,20 @@ class JdbcOfferFriendshipRepositoryTest {
         );
     }
 
+    private OfferFriendshipEntity offerFriendshipEntity(
+            UUID id,
+            UUID fromUserId,
+            UUID toUserId,
+            OfferFriendshipEntity.Status status,
+            Instant now
+    ) {
+        var entity = new OfferFriendshipEntity();
+        entity.setId(id);
+        entity.setFromUserId(fromUserId);
+        entity.setToUserId(toUserId);
+        entity.setStatus(status);
+        entity.setCreatedAt(now);
+        entity.setUpdatedAt(now);
+        return entity;
+    }
 }

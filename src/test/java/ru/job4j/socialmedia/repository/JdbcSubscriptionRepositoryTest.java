@@ -7,6 +7,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import ru.job4j.socialmedia.entity.SubscriptionEntity;
 import ru.job4j.socialmedia.exception.SelfSubscriptionException;
 
 import java.time.Instant;
@@ -34,26 +35,20 @@ public class JdbcSubscriptionRepositoryTest {
         var followedId = UUID.randomUUID();
         var now = Instant.parse("2026-09-22T10:15:00Z");
         var request = new SubscriptionRepository.CreateSubscriptionRequest(
-                id,
-                followerId,
-                followedId,
-                now
+                id, followerId, followedId, now
         );
 
         var result = repository.createSubscription(request);
 
         var expected = new SubscriptionRepository
                 .CreateSubscriptionResponse(
-                id,
-                followerId,
-                followedId,
-                now
+                id, followerId, followedId, now
         );
         assertThat(result).isEqualTo(expected);
     }
 
     @Test
-    void whenCreateDuplicateSubscriptionRepositoryThenThrowException() {
+    void whenCreateSelfSubscriptionThenThrowException() {
         var followerId = UUID.randomUUID();
 
         assertThatThrownBy(() -> repository.createSubscription(request(
@@ -62,66 +57,51 @@ public class JdbcSubscriptionRepositoryTest {
     }
 
     @Test
-    void whenFind2findSubscriptions(){
-        var id = UUID.randomUUID();
+    void whenFind2Subscriptions() {
+        var id1 = UUID.randomUUID();
         var followerId = UUID.randomUUID();
-        var followedId = UUID.randomUUID();
+        var followedId1 = UUID.randomUUID();
         var id2 = UUID.randomUUID();
         var followedId2 = UUID.randomUUID();
         var now = Instant.parse("2026-09-22T10:15:00Z");
-        var request = new SubscriptionRepository.CreateSubscriptionRequest(
-                id,
-                followerId,
-                followedId,
-                now
-        );
-        var request2 = new SubscriptionRepository.CreateSubscriptionRequest(
-                id2,
-                followerId,
-                followedId2,
-                now
-        );
 
-        repository.createSubscription(request);
-        repository.createSubscription(request2);
+        repository.createSubscription(new SubscriptionRepository
+                .CreateSubscriptionRequest(id1, followerId, followedId1, now));
+        repository.createSubscription(new SubscriptionRepository
+                .CreateSubscriptionRequest(id2, followerId, followedId2, now));
 
         var list = repository.findSubscriptions(followerId);
+
+        var expected1 = subscriptionEntity(id1, followerId, followedId1, now);
+        var expected2 = subscriptionEntity(id2, followerId, followedId2, now);
+
         assertThat(list)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(followedId, followedId2);
-
+                .containsExactlyInAnyOrder(expected1, expected2);
     }
 
-
     @Test
-    void whenFind2findFollowers(){
-        var id = UUID.randomUUID();
-        var followerId = UUID.randomUUID();
+    void whenFind2Followers() {
+        var id1 = UUID.randomUUID();
+        var followerId1 = UUID.randomUUID();
         var followedId = UUID.randomUUID();
         var id2 = UUID.randomUUID();
         var followerId2 = UUID.randomUUID();
         var now = Instant.parse("2026-09-22T10:15:00Z");
-        var request = new SubscriptionRepository.CreateSubscriptionRequest(
-                id,
-                followerId,
-                followedId,
-                now
-        );
-        var request2 = new SubscriptionRepository.CreateSubscriptionRequest(
-                id2,
-                followerId2,
-                followedId,
-                now
-        );
 
-        repository.createSubscription(request);
-        repository.createSubscription(request2);
+        repository.createSubscription(new SubscriptionRepository
+                .CreateSubscriptionRequest(id1, followerId1, followedId, now));
+        repository.createSubscription(new SubscriptionRepository
+                .CreateSubscriptionRequest(id2, followerId2, followedId, now));
 
         var list = repository.findFollowers(followedId);
+
+        var expected1 = subscriptionEntity(id1, followerId1, followedId, now);
+        var expected2 = subscriptionEntity(id2, followerId2, followedId, now);
+
         assertThat(list)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(followerId, followerId2);
-
+                .containsExactlyInAnyOrder(expected1, expected2);
     }
 
     private SubscriptionRepository.CreateSubscriptionRequest request(
@@ -133,5 +113,19 @@ public class JdbcSubscriptionRepositoryTest {
         return new SubscriptionRepository.CreateSubscriptionRequest(
                 id, followerId, followedId, now
         );
+    }
+
+    private SubscriptionEntity subscriptionEntity(
+            UUID id,
+            UUID followerId,
+            UUID followedId,
+            Instant now
+    ) {
+        var entity = new SubscriptionEntity();
+        entity.setId(id);
+        entity.setFollowerId(followerId);
+        entity.setFollowedId(followedId);
+        entity.setCreatedAt(now);
+        return entity;
     }
 }

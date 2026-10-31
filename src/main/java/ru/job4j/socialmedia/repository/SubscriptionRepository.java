@@ -1,5 +1,7 @@
 package ru.job4j.socialmedia.repository;
 
+import ru.job4j.socialmedia.entity.SubscriptionEntity;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -26,11 +28,11 @@ public interface SubscriptionRepository {
     ) {
     }
 
-    List<UUID> findSubscriptions(
+    List<SubscriptionEntity> findSubscriptions(
             UUID userId
     );
 
-    List<UUID> findFollowers(
+    List<SubscriptionEntity> findFollowers(
             UUID userId
     );
 }

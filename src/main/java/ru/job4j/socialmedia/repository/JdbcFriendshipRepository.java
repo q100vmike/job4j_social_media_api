@@ -3,8 +3,11 @@ package ru.job4j.socialmedia.repository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.job4j.socialmedia.entity.FriendshipEntity;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
+import org.springframework.jdbc.core.RowMapper;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,17 +25,24 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
             """;
 
     private static final String ALLFRIENDS = """
-            SELECT CASE
-                       WHEN first_user_id = ? THEN second_user_id
-                       ELSE first_user_id
-                   END AS friend_id,
-                   created_at
-            FROM friendships
-            WHERE first_user_id = ? OR second_user_id = ?
-            ORDER BY created_at DESC, id DESC
-            """;
+        SELECT id, first_user_id, second_user_id,
+               offer_friendship_id, created_at
+        FROM friendships
+        WHERE first_user_id = ? OR second_user_id = ?
+        ORDER BY created_at DESC, id DESC
+        """;
 
     private final JdbcTemplate jdbcTemplate;
+
+    private static final RowMapper<FriendshipEntity> FRIENDSHIP_ROW_MAPPER = (rs, rowNum) -> {
+        FriendshipEntity friendship = new FriendshipEntity();
+        friendship.setId(rs.getObject("id", UUID.class));
+        friendship.setFirstUserId(rs.getObject("first_user_id", UUID.class));
+        friendship.setSecondUserId(rs.getObject("second_user_id", UUID.class));
+        friendship.setOfferFriendshipId(rs.getObject("offer_friendship_id", UUID.class));
+        friendship.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class).toInstant());
+        return friendship;
+    };
 
     public JdbcFriendshipRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -66,12 +76,8 @@ public class JdbcFriendshipRepository implements FriendshipRepository {
     }
 
     @Override
-    public List<UUID> findFriendships(UUID userId) {
-        return jdbcTemplate.query(
-                ALLFRIENDS,
-                (resultSet, rowNum) -> resultSet.getObject("friend_id", UUID.class),
-                userId, userId, userId
-        );
+    public List<FriendshipEntity> findFriendships(UUID userId) {
+        return jdbcTemplate.query(ALLFRIENDS, FRIENDSHIP_ROW_MAPPER, userId, userId);
     }
 
 }

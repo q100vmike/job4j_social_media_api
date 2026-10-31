@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import ru.job4j.socialmedia.entity.FriendshipEntity;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
 
 import java.time.Instant;
@@ -62,7 +63,7 @@ public class JdbcFriendshipRepositoryTest {
     }
 
     @Test
-    void whenFind2findFriends() {
+    void whenFind2FriendshipsThenReturn2Entities() {
         var firstUserId = UUID.randomUUID();
         var secondUserId1 = UUID.randomUUID();
         var secondUserId2 = UUID.randomUUID();
@@ -70,17 +71,60 @@ public class JdbcFriendshipRepositoryTest {
         var offerId1 = insertOfferFriendship(firstUserId, secondUserId1);
         var offerId2 = insertOfferFriendship(firstUserId, secondUserId2);
 
-        repository.createFriendship(request(
-                UUID.randomUUID(), firstUserId, secondUserId1, offerId1
+        var id1 = UUID.randomUUID();
+        var id2 = UUID.randomUUID();
+        var now = Instant.parse("2026-09-22T10:15:00Z");
+
+        repository.createFriendship(new FriendshipRepository.CreateFriendshipRequest(
+                id1, firstUserId, secondUserId1, offerId1, now
         ));
-        repository.createFriendship(request(
-                UUID.randomUUID(), firstUserId, secondUserId2, offerId2
+        repository.createFriendship(new FriendshipRepository.CreateFriendshipRequest(
+                id2, firstUserId, secondUserId2, offerId2, now
         ));
 
         var list = repository.findFriendships(firstUserId);
+
+        var expected1 = new FriendshipEntity();
+        expected1.setId(id1);
+        expected1.setFirstUserId(firstUserId);
+        expected1.setSecondUserId(secondUserId1);
+        expected1.setOfferFriendshipId(offerId1);
+        expected1.setCreatedAt(now);
+
+        var expected2 = new FriendshipEntity();
+        expected2.setId(id2);
+        expected2.setFirstUserId(firstUserId);
+        expected2.setSecondUserId(secondUserId2);
+        expected2.setOfferFriendshipId(offerId2);
+        expected2.setCreatedAt(now);
+
         assertThat(list)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(secondUserId1, secondUserId2);
+                .containsExactlyInAnyOrder(expected1, expected2);
+    }
+
+    @Test
+    void whenFindFriendshipsBySecondUserThenReturnEntity() {
+        var firstUserId = UUID.randomUUID();
+        var secondUserId = UUID.randomUUID();
+        var offerId = insertOfferFriendship(firstUserId, secondUserId);
+        var friendshipId = UUID.randomUUID();
+        var now = Instant.parse("2026-09-22T10:15:00Z");
+
+        repository.createFriendship(new FriendshipRepository.CreateFriendshipRequest(
+                friendshipId, firstUserId, secondUserId, offerId, now
+        ));
+
+        var list = repository.findFriendships(secondUserId);
+
+        var expected = new FriendshipEntity();
+        expected.setId(friendshipId);
+        expected.setFirstUserId(firstUserId);
+        expected.setSecondUserId(secondUserId);
+        expected.setOfferFriendshipId(offerId);
+        expected.setCreatedAt(now);
+
+        assertThat(list).containsExactly(expected);
     }
 
     private FriendshipRepository.CreateFriendshipRequest request(

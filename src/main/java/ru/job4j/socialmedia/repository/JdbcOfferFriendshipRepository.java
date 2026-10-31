@@ -2,10 +2,13 @@ package ru.job4j.socialmedia.repository;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 import ru.job4j.socialmedia.exception.OfferFriendshipAlreadyExistsException;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,20 +27,33 @@ public class JdbcOfferFriendshipRepository
             """;
 
     private static final String OUTOFFER = """
-            SELECT to_user_id
+            SELECT id, from_user_id, to_user_id,
+                      status, created_at, updated_at
             FROM offer_friendships
             WHERE from_user_id = ?
             ORDER BY created_at DESC, id DESC
             """;
 
     private static final String INOFFER = """
-            SELECT from_user_id
+            SELECT id, from_user_id, to_user_id,
+                      status, created_at, updated_at
             FROM offer_friendships
             WHERE to_user_id = ?
             ORDER BY created_at DESC, id DESC
             """;
 
     private final JdbcTemplate jdbcTemplate;
+
+    private static final RowMapper<OfferFriendshipEntity> OFFER_ROW_MAPPER = (rs, rowNum) -> {
+        OfferFriendshipEntity offer = new OfferFriendshipEntity();
+        offer.setId(rs.getObject("id", UUID.class));
+        offer.setFromUserId(rs.getObject("from_user_id", UUID.class));
+        offer.setToUserId(rs.getObject("to_user_id", UUID.class));
+        offer.setStatus(OfferFriendshipEntity.Status.valueOf(rs.getString("status")));
+        offer.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class).toInstant());
+        offer.setUpdatedAt(rs.getObject("updated_at", OffsetDateTime.class).toInstant());
+        return offer;
+    };
 
     public JdbcOfferFriendshipRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -78,20 +94,12 @@ public class JdbcOfferFriendshipRepository
     }
 
     @Override
-    public List<UUID> findIncomingOfferFriendships(UUID userId) {
-        return jdbcTemplate.query(
-                INOFFER,
-                (resultSet, rowNum) -> resultSet.getObject("from_user_id", UUID.class),
-                userId
-        );
+    public List<OfferFriendshipEntity> findIncomingOfferFriendships(UUID userId) {
+        return jdbcTemplate.query(INOFFER, OFFER_ROW_MAPPER, userId);
     }
 
     @Override
-    public List<UUID> findOutgoingOfferFriendships(UUID userId) {
-        return jdbcTemplate.query(
-                OUTOFFER,
-                (resultSet, rowNum) -> resultSet.getObject("to_user_id", UUID.class),
-                userId
-        );
+    public List<OfferFriendshipEntity> findOutgoingOfferFriendships(UUID userId) {
+        return jdbcTemplate.query(OUTOFFER, OFFER_ROW_MAPPER, userId);
     }
 }

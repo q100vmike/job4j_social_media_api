@@ -2,15 +2,17 @@ package ru.job4j.socialmedia.repository;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.job4j.socialmedia.entity.SubscriptionEntity;
 import ru.job4j.socialmedia.exception.SelfSubscriptionException;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
 public class JdbcSubscriptionRepository implements SubscriptionRepository {
-
 
     private static final String CREATE = """
             INSERT INTO subscriptions (
@@ -21,18 +23,27 @@ public class JdbcSubscriptionRepository implements SubscriptionRepository {
             """;
 
     private static final String ALLSUBSCRIBE = """
-            SELECT followed_id
+            SELECT id, followed_id, follower_id, created_at
             FROM subscriptions
             WHERE follower_id = ?
             ORDER BY created_at DESC, id DESC
             """;
 
-    private static final String ALLFALLOWERS = """
-            SELECT follower_id
+    private static final String ALLFOLLOWERS = """
+            SELECT id, followed_id, follower_id, created_at
             FROM subscriptions
             WHERE followed_id = ?
             ORDER BY created_at DESC, id DESC
             """;
+
+    private static final RowMapper<SubscriptionEntity> SUBSCRIPTION_ROW_MAPPER = (rs, rowNum) -> {
+        SubscriptionEntity subscription = new SubscriptionEntity();
+        subscription.setId(rs.getObject("id", UUID.class));
+        subscription.setFollowerId(rs.getObject("follower_id", UUID.class));
+        subscription.setFollowedId(rs.getObject("followed_id", UUID.class));
+        subscription.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class).toInstant());
+        return subscription;
+    };
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -46,10 +57,10 @@ public class JdbcSubscriptionRepository implements SubscriptionRepository {
             return jdbcTemplate.queryForObject(
                     CREATE,
                     (resultSet, rowNum) -> new CreateSubscriptionResponse(
-                            resultSet.getObject("id", java.util.UUID.class),
-                            resultSet.getObject("follower_id", java.util.UUID.class),
-                            resultSet.getObject("followed_id", java.util.UUID.class),
-                            resultSet.getTimestamp("created_at").toInstant()
+                            resultSet.getObject("id", UUID.class),
+                            resultSet.getObject("follower_id", UUID.class),
+                            resultSet.getObject("followed_id", UUID.class),
+                            resultSet.getObject("created_at", OffsetDateTime.class).toInstant()
                     ),
                     request.id(),
                     request.followerId(),
@@ -66,20 +77,12 @@ public class JdbcSubscriptionRepository implements SubscriptionRepository {
     }
 
     @Override
-    public List<UUID> findSubscriptions(UUID userId) {
-        return jdbcTemplate.query(
-                ALLSUBSCRIBE,
-                (resultSet, rowNum) -> resultSet.getObject("followed_id", UUID.class),
-                userId
-        );
+    public List<SubscriptionEntity> findSubscriptions(UUID userId) {
+        return jdbcTemplate.query(ALLSUBSCRIBE, SUBSCRIPTION_ROW_MAPPER, userId);
     }
 
     @Override
-    public List<UUID> findFollowers(UUID userId) {
-        return jdbcTemplate.query(
-                ALLFALLOWERS,
-                (resultSet, rowNum) -> resultSet.getObject("follower_id", UUID.class),
-                userId
-        );
+    public List<SubscriptionEntity> findFollowers(UUID userId) {
+        return jdbcTemplate.query(ALLFOLLOWERS, SUBSCRIPTION_ROW_MAPPER, userId);
     }
 }
