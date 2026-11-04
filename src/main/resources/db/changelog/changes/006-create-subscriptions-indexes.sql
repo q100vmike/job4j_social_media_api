@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset student:005
+--changeset subscriptions:006
 CREATE INDEX idx_subscriptions_follower
     ON subscriptions (follower_id);
 

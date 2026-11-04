@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset student:004
+--changeset friendships:004
 CREATE INDEX idx_friendships_first
     ON friendships (first_user_id);
 

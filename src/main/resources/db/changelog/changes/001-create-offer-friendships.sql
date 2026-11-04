@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset student:001
+--changeset offer_friendships:001
 CREATE TABLE offer_friendships (
                                    id UUID PRIMARY KEY,
                                    from_user_id UUID NOT NULL,

@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset student:002
+--changeset offer_friendships:002
 CREATE INDEX idx_offer_friendships_incoming
     ON offer_friendships (to_user_id, status, created_at DESC);
 

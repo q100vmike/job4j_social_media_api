@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset student:007
+--changeset posts:007
 CREATE TABLE posts (
                        id          UUID PRIMARY KEY,
                        author_id   UUID NOT NULL,

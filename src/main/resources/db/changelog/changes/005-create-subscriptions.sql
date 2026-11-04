@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset student:005
+--changeset subscriptions:005
 CREATE TABLE subscriptions (
                                id UUID NOT NULL,
                                follower_id UUID NOT NULL,
