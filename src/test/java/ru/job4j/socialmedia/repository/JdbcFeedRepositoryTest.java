@@ -2,6 +2,8 @@ package ru.job4j.socialmedia.repository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -19,6 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Execution(ExecutionMode.SAME_THREAD)
 @Testcontainers
 @SpringBootTest
 public class JdbcFeedRepositoryTest {
@@ -79,14 +82,17 @@ public class JdbcFeedRepositoryTest {
 
     @Test
     void whenAuthorIsNotFollowedThenPostIsNotInFeed() {
-        insertPost(bob, "bob post", PostEntity.Status.PUBLISHED,
+        insertSubscription(carol, alice); // carol подписана на alice, но не на bob
+        var bobPostId = insertPost(bob, "bob post", PostEntity.Status.PUBLISHED,
                 instant("2026-01-01T10:00:00Z"));
-        var ownPostId = insertPost(carol, "carol post", PostEntity.Status.PUBLISHED,
+        var alicePostId = insertPost(alice, "alice post", PostEntity.Status.PUBLISHED,
                 instant("2026-01-02T10:00:00Z"));
 
         var list = repository.findFeed(carol, 10, 0);
 
-        assertThat(list).extracting(PostEntity::getId).doesNotContain(ownPostId);
+        assertThat(list).extracting(PostEntity::getId)
+                .containsExactly(alicePostId)
+                .doesNotContain(bobPostId);
     }
 
     @Test
@@ -121,16 +127,13 @@ public class JdbcFeedRepositoryTest {
 
         var post = repository.findFeed(alice, 10, 0).get(0);
 
-        var expected = new PostEntity();
-        expected.setId(postId);
-        expected.setAuthorId(bob);
-        expected.setTitle("title");
-        expected.setContent("content");
-        expected.setStatus(PostEntity.Status.PUBLISHED);
-        expected.setCreatedAt(offset("2026-01-01T10:00:00Z"));
-        expected.setUpdatedAt(offset("2026-01-01T10:00:00Z"));
-
-        assertThat(post).isEqualTo(expected);
+        assertThat(post.getId()).isEqualTo(postId);
+        assertThat(post.getAuthorId()).isEqualTo(bob);
+        assertThat(post.getTitle()).isEqualTo("title");
+        assertThat(post.getContent()).isEqualTo("content");
+        assertThat(post.getStatus()).isEqualTo(PostEntity.Status.PUBLISHED);
+        assertThat(post.getCreatedAt()).isEqualTo(offset("2026-01-01T10:00:00Z"));
+        assertThat(post.getUpdatedAt()).isEqualTo(offset("2026-01-01T10:00:00Z"));
     }
 
     private Instant instant(String value) {
