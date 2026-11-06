@@ -2,6 +2,11 @@ openapi: 3.0.3
 info:
   title: Social Media API
   version: 1.0.0
+
+tags:
+  - name: Friendship
+    description: Управление заявками в друзья
+
 paths:
   /api/offer-friendships/create:
     $ref: './paths/create-offer-friendship.yaml'
