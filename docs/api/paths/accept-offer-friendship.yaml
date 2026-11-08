@@ -1,4 +1,7 @@
 post:
+  tags:
+    - Friendship
+  operationId: acceptOfferFriendship
   summary: Принять предложение дружбы
   requestBody:
     required: true
@@ -7,68 +10,50 @@ post:
         schema:
           type: object
           required:
-            - offer_id
+            - offerId
           properties:
-            offer_id:
-              type: integer
-              format: int64
-              example: 1
+            offerId:
+              type: string
+              format: uuid
+              example: 'b1a2c3d4-e5f6-7890-abcd-ef1234567890'
   responses:
     '200':
       description: Предложение дружбы принято (статус → ACCEPTED), создана подписка
     '204':
       description: Заявка уже в статусе ACCEPT
-      content:
-        application/json:
-          schema:
-            type: object
     '400':
       description: Некорректные входные данные
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            required: [title, status, detail, instance]
+            properties:
+              title: { type: string, example: Bad Request }
+              status: { type: integer, example: 400 }
+              detail: { type: string, example: Некорректные входные данные }
+              instance: { type: string, example: /api/offer-friendships/accept }
     '404':
       description: Заявка не найдена
       content:
         application/problem+json:
           schema:
             type: object
-            required:
-              - title
-              - status
-              - detail
-              - instance
+            required: [title, status, detail, instance]
             properties:
-              title:
-                type: string
-                example: No Friendship Exist
-              status:
-                type: integer
-                example: 404
-              detail:
-                type: string
-                example: Заявка не найдена
-              instance:
-                type: string
-                example: /api/offer-friendships/accept
+              title: { type: string, example: No Friendship Exist }
+              status: { type: integer, example: 404 }
+              detail: { type: string, example: Заявка не найдена }
+              instance: { type: string, example: /api/offer-friendships/accept }
     '409':
       description: Заявка не в статусе PENDING
       content:
         application/problem+json:
           schema:
             type: object
-            required:
-              - title
-              - status
-              - detail
-              - instance
+            required: [title, status, detail, instance]
             properties:
-              title:
-                type: string
-                example: Friendship wrong status
-              status:
-                type: integer
-                example: 409
-              detail:
-                type: string
-                example: Заявка в статусе REJECT
-              instance:
-                type: string
-                example: /api/offer-friendships/accept
+              title: { type: string, example: Friendship wrong status }
+              status: { type: integer, example: 409 }
+              detail: { type: string, example: Заявка в статусе REJECT }
+              instance: { type: string, example: /api/offer-friendships/accept }

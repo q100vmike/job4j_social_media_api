@@ -10,6 +10,7 @@ import ru.job4j.socialmedia.exception.SelfFriendshipException;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -42,6 +43,12 @@ public class JdbcOfferFriendshipRepository
             ORDER BY created_at DESC, id DESC
             """;
 
+    private static final String FIND_BY_FROM_AND_TO = """
+        SELECT id, from_user_id, to_user_id, status, created_at, updated_at
+        FROM offer_friendships
+        WHERE from_user_id = ? AND to_user_id = ?
+        """;
+
     private final JdbcTemplate jdbcTemplate;
 
     private static final RowMapper<OfferFriendshipEntity> OFFER_ROW_MAPPER = (rs, rowNum) -> {
@@ -70,7 +77,7 @@ public class JdbcOfferFriendshipRepository
                             resultSet.getObject("id", java.util.UUID.class),
                             resultSet.getObject("from_user_id", java.util.UUID.class),
                             resultSet.getObject("to_user_id", java.util.UUID.class),
-                            Status.valueOf(resultSet.getString("status")),
+                            OfferFriendshipEntity.Status.valueOf(resultSet.getString("status")),
                             resultSet.getTimestamp("created_at").toInstant(),
                             resultSet.getTimestamp("updated_at").toInstant()
                     ),
@@ -101,5 +108,11 @@ public class JdbcOfferFriendshipRepository
     @Override
     public List<OfferFriendshipEntity> findOutgoingOfferFriendships(UUID userId) {
         return jdbcTemplate.query(OUTOFFER, OFFER_ROW_MAPPER, userId);
+    }
+
+    @Override
+    public Optional<OfferFriendshipEntity> findByFromAndTo(UUID fromUserId, UUID toUserId) {
+        return jdbcTemplate.query(FIND_BY_FROM_AND_TO, OFFER_ROW_MAPPER,
+                fromUserId, toUserId).stream().findFirst();
     }
 }

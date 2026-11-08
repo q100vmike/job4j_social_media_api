@@ -6,6 +6,8 @@ info:
 tags:
   - name: Friendship
     description: Управление заявками в друзья
+  - name: Subscribes
+    description: Управление подписками
 
 paths:
   /api/offer-friendships/create:
@@ -24,3 +26,48 @@ paths:
     $ref: './paths/get-followers.yaml'
   /api/subscribes:
     $ref: './paths/get-subscribes.yaml'
+
+components:
+  schemas:
+    UserResponse:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          format: uuid
+    ProblemDetail:
+      type: object
+      required: [title, status, detail, instance]
+      properties:
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+    OfferFriendshipResponse:
+      type: object
+      required: [offerId, fromUserId, toUserId, status, createdAt]
+      properties:
+        offerId: { type: string, format: uuid }
+        fromUserId: { type: string, format: uuid }
+        toUserId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, REJECTED]
+        createdAt: { type: string, format: date-time }
+    CreateOfferFriendshipRequest:
+      type: object
+      required: [fromUserId, toUserId]
+      properties:
+        fromUserId: { type: string, format: uuid }
+        toUserId: { type: string, format: uuid }
+    AcceptOfferFriendshipRequest:
+      type: object
+      required: [offerId]
+      properties:
+        offerId: { type: string, format: uuid }
+    RejectOfferFriendshipRequest:
+      type: object
+      required: [offerId]
+      properties:
+        offerId: { type: string, format: uuid }

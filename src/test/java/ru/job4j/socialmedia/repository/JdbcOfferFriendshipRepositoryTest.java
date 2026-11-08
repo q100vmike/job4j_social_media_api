@@ -18,7 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static ru.job4j.socialmedia.repository.OfferFriendshipRepository.Status.PENDING;
+import static ru.job4j.socialmedia.entity.OfferFriendshipEntity.Status.PENDING;
 
 @Testcontainers
 @SpringBootTest
@@ -67,8 +67,8 @@ class JdbcOfferFriendshipRepositoryTest {
 
         var list = repository.findIncomingOfferFriendships(toUserId);
 
-        var expected1 = offerFriendshipEntity(id1, fromUserId1, toUserId, OfferFriendshipEntity.Status.PENDING, now);
-        var expected2 = offerFriendshipEntity(id2, fromUserId2, toUserId, OfferFriendshipEntity.Status.PENDING, now);
+        var expected1 = offerFriendshipEntity(id1, fromUserId1, toUserId, PENDING, now);
+        var expected2 = offerFriendshipEntity(id2, fromUserId2, toUserId, PENDING, now);
 
         assertThat(list)
                 .hasSize(2)
@@ -92,8 +92,8 @@ class JdbcOfferFriendshipRepositoryTest {
 
         var list = repository.findOutgoingOfferFriendships(fromUserId);
 
-        var expected1 = offerFriendshipEntity(id1, fromUserId, toUserId1, OfferFriendshipEntity.Status.PENDING, now);
-        var expected2 = offerFriendshipEntity(id2, fromUserId, toUserId2, OfferFriendshipEntity.Status.PENDING, now);
+        var expected1 = offerFriendshipEntity(id1, fromUserId, toUserId1, PENDING, now);
+        var expected2 = offerFriendshipEntity(id2, fromUserId, toUserId2, PENDING, now);
 
         assertThat(list)
                 .hasSize(2)
@@ -130,7 +130,7 @@ class JdbcOfferFriendshipRepositoryTest {
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),
-                OfferFriendshipRepository.Status.valueOf("UNKNOWN")
+                OfferFriendshipEntity.Status.valueOf("UNKNOWN")
         ))).isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -138,7 +138,7 @@ class JdbcOfferFriendshipRepositoryTest {
             UUID id,
             UUID fromUserId,
             UUID toUserId,
-            OfferFriendshipRepository.Status status
+            OfferFriendshipEntity.Status status
     ) {
         var now = Instant.parse("2026-09-22T10:15:00Z");
         return new OfferFriendshipRepository.CreateOfferFriendshipRequest(

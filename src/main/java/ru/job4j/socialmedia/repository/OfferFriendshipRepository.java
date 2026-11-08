@@ -1,13 +1,14 @@
 package ru.job4j.socialmedia.repository;
 
-import ru.job4j.socialmedia.entity.FriendshipEntity;
 import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface OfferFriendshipRepository {
+
     CreateOfferFriendshipResponse createOfferFriendship(
             CreateOfferFriendshipRequest request
     );
@@ -16,7 +17,7 @@ public interface OfferFriendshipRepository {
             UUID id,
             UUID fromUserId,
             UUID toUserId,
-            Status status,
+            OfferFriendshipEntity.Status status,
             Instant createdAt,
             Instant updatedAt
     ) {
@@ -26,16 +27,10 @@ public interface OfferFriendshipRepository {
             UUID id,
             UUID fromUserId,
             UUID toUserId,
-            Status status,
+            OfferFriendshipEntity.Status status,
             Instant createdAt,
             Instant updatedAt
     ) {
-    }
-
-    enum Status {
-        PENDING,
-        ACCEPTED,
-        REJECTED
     }
 
     List<OfferFriendshipEntity> findIncomingOfferFriendships(
@@ -45,4 +40,6 @@ public interface OfferFriendshipRepository {
     List<OfferFriendshipEntity> findOutgoingOfferFriendships(
             UUID userId
     );
+
+    Optional<OfferFriendshipEntity> findByFromAndTo(UUID fromUserId, UUID toUserId);
 }
