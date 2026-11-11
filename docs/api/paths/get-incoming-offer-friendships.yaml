@@ -1,8 +1,8 @@
 get:
   tags:
-    - Subscribes
-  operationId: getFollowers
-  summary: Получить подписчиков пользователя
+    - Friendship
+  operationId: getIncomingOfferFriendships
+  summary: Получить входящие заявки в друзья
   parameters:
     - name: userId
       in: query
@@ -14,19 +14,36 @@ get:
         example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
   responses:
     '200':
-      description: Список подписчиков пользователя
+      description: Список входящих заявок в друзья
       content:
         application/json:
           schema:
             type: array
             items:
+              title: OfferFriendshipResponse
               type: object
-              required: [id]
+              required: [offerId, fromUserId, toUserId, status, createdAt]
               properties:
-                id:
+                offerId:
+                  type: string
+                  format: uuid
+                  example: 'b1a2c3d4-e5f6-7890-abcd-ef1234567890'
+                fromUserId:
+                  type: string
+                  format: uuid
+                  example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                toUserId:
                   type: string
                   format: uuid
                   example: '7c9e6679-7425-40de-944b-e07fc1f90ae7'
+                status:
+                  type: string
+                  enum: [PENDING, ACCEPTED, REJECTED]
+                  example: PENDING
+                createdAt:
+                  type: string
+                  format: date-time
+                  example: '2026-09-22T10:15:00Z'
     '400':
       description: Некорректные входные данные
       content:
@@ -38,7 +55,7 @@ get:
               title: { type: string, example: Bad Request }
               status: { type: integer, example: 400 }
               detail: { type: string, example: Некорректные входные данные }
-              instance: { type: string, example: /api/subscribes/followers }
+              instance: { type: string, example: /api/offer-friendships/incoming }
     '404':
       description: Пользователь не найден
       content:
@@ -50,4 +67,4 @@ get:
               title: { type: string, example: No Such User }
               status: { type: integer, example: 404 }
               detail: { type: string, example: Пользователь не найден }
-              instance: { type: string, example: /api/subscribes/followers }
+              instance: { type: string, example: /api/offer-friendships/incoming }

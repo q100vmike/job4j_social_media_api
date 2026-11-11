@@ -8,6 +8,7 @@ post:
     content:
       application/json:
         schema:
+          title: RejectOfferFriendshipRequest
           type: object
           required:
             - offerId

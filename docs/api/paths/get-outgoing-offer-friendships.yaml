@@ -20,6 +20,7 @@ get:
           schema:
             type: array
             items:
+              title: OfferFriendshipResponse
               type: object
               required: [offerId, fromUserId, toUserId, status, createdAt]
               properties:
