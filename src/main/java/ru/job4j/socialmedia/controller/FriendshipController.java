@@ -4,20 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.job4j.socialmedia.controller.api.FriendshipApi;
-import ru.job4j.socialmedia.controller.dto.AcceptOfferFriendshipRequest;
 import ru.job4j.socialmedia.controller.dto.CreateOfferFriendshipRequest;
 import ru.job4j.socialmedia.controller.dto.CreateOfferFriendshipResponse;
-import ru.job4j.socialmedia.controller.dto.OfferFriendshipResponse;
-import ru.job4j.socialmedia.controller.dto.RejectOfferFriendshipRequest;
-import ru.job4j.socialmedia.controller.dto.UserResponse;
-import ru.job4j.socialmedia.controller.presenter.OfferFriendshipPresenter;
 import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 import ru.job4j.socialmedia.service.FriendshipService;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 public class FriendshipController implements FriendshipApi {
