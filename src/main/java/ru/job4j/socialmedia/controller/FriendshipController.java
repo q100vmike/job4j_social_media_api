@@ -13,6 +13,7 @@ import ru.job4j.socialmedia.controller.dto.UserResponse;
 import ru.job4j.socialmedia.controller.presenter.OfferFriendshipPresenter;
 import ru.job4j.socialmedia.service.FriendshipService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,35 +36,63 @@ public class FriendshipController implements FriendshipApi {
                 request.getFromUserId(),
                 request.getToUserId()
         );
-        if (result.isPresent()) {
-            var response = presenter.toResponse(result.get());
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        if (result.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.noContent().build();
+        var response = presenter.toCreateResponse(result.get());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<Void> acceptOfferFriendship(AcceptOfferFriendshipRequest request) {
-        throw new UnsupportedOperationException("acceptOfferFriendship not implemented yet");
+        var result = friendshipService.acceptOfferFriendship(request.getOfferId());
+        if (result.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @Override
     public ResponseEntity<Void> rejectOfferFriendship(RejectOfferFriendshipRequest request) {
-        throw new UnsupportedOperationException("rejectOfferFriendship not implemented yet");
+        var result = friendshipService.rejectOfferFriendship(request.getOfferId());
+        if (result.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @Override
     public ResponseEntity<List<UserResponse>> getFriendships(UUID userId) {
-        throw new UnsupportedOperationException("getFriendships not implemented yet");
+        var friendships = friendshipService.findFriendships(userId);
+        var response = new ArrayList<UserResponse>(friendships.size());
+        for (var friendship : friendships) {
+            var friendId = friendship.getFirstUserId().equals(userId)
+                    ? friendship.getSecondUserId()
+                    : friendship.getFirstUserId();
+            var user = new UserResponse();
+            user.setId(friendId);
+            response.add(user);
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<List<OfferFriendshipResponse>> getIncomingOfferFriendships(UUID userId) {
-        throw new UnsupportedOperationException("getIncomingOfferFriendships not implemented yet");
+        var offers = friendshipService.findIncomingOfferFriendships(userId);
+        var response = new ArrayList<OfferFriendshipResponse>(offers.size());
+        for (var offer : offers) {
+            response.add(presenter.toResponse(offer));
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<List<OfferFriendshipResponse>> getOutgoingOfferFriendships(UUID userId) {
-        throw new UnsupportedOperationException("getOutgoingOfferFriendships not implemented yet");
+        var offers = friendshipService.findOutgoingOfferFriendships(userId);
+        var response = new ArrayList<OfferFriendshipResponse>(offers.size());
+        for (var offer : offers) {
+            response.add(presenter.toResponse(offer));
+        }
+        return ResponseEntity.ok(response);
     }
 }
