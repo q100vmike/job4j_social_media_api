@@ -1,13 +1,16 @@
 package ru.job4j.socialmedia.repository;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.job4j.socialmedia.controller.dto.RejectOfferFriendshipRequest;
 import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 import ru.job4j.socialmedia.exception.OfferFriendshipAlreadyExistsException;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +50,18 @@ public class JdbcOfferFriendshipRepository
         SELECT id, from_user_id, to_user_id, status, created_at, updated_at
         FROM offer_friendships
         WHERE from_user_id = ? AND to_user_id = ?
+        """;
+
+    private static final String FIND_BY_ID = """
+        SELECT id, from_user_id, to_user_id, status, created_at, updated_at
+        FROM offer_friendships
+        WHERE id = ?
+        """;
+
+    private static final String UPDATE_PENDING_STATUS = """
+        UPDATE offer_friendships
+        SET status = ?, updated_at = ?
+        WHERE id = ? AND status = 'PENDING'
         """;
 
     private final JdbcTemplate jdbcTemplate;
@@ -114,5 +129,18 @@ public class JdbcOfferFriendshipRepository
     public Optional<OfferFriendshipEntity> findByFromAndTo(UUID fromUserId, UUID toUserId) {
         return jdbcTemplate.query(FIND_BY_FROM_AND_TO, OFFER_ROW_MAPPER,
                 fromUserId, toUserId).stream().findFirst();
+    }
+
+    @Override
+    public Optional<OfferFriendshipEntity> findById(UUID id) {
+        return jdbcTemplate.query(FIND_BY_ID, OFFER_ROW_MAPPER, id)
+                .stream().findFirst();
+    }
+
+    @Override
+    public boolean updatePendingStatus(UUID id, OfferFriendshipEntity.Status status, Instant updatedAt) {
+        int updated = jdbcTemplate.update(UPDATE_PENDING_STATUS, status.name(),
+                java.sql.Timestamp.from(updatedAt), id);
+        return updated > 0;
     }
 }

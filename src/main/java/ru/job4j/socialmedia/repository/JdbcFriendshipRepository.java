@@ -1,14 +1,19 @@
 package ru.job4j.socialmedia.repository;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.job4j.socialmedia.controller.dto.RejectOfferFriendshipRequest;
 import ru.job4j.socialmedia.entity.FriendshipEntity;
+import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 import ru.job4j.socialmedia.exception.SelfFriendshipException;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository

@@ -1,5 +1,7 @@
 package ru.job4j.socialmedia.repository;
 
+import org.springframework.http.ResponseEntity;
+import ru.job4j.socialmedia.controller.dto.RejectOfferFriendshipRequest;
 import ru.job4j.socialmedia.entity.OfferFriendshipEntity;
 
 import java.time.Instant;
@@ -42,4 +44,11 @@ public interface OfferFriendshipRepository {
     );
 
     Optional<OfferFriendshipEntity> findByFromAndTo(UUID fromUserId, UUID toUserId);
+
+    Optional<OfferFriendshipEntity> findById(UUID id);
+
+    boolean updatePendingStatus(
+            UUID id,
+            OfferFriendshipEntity.Status status,
+            Instant updatedAt);
 }

@@ -1,5 +1,7 @@
 package ru.job4j.socialmedia.repository;
 
+import org.springframework.http.ResponseEntity;
+import ru.job4j.socialmedia.controller.dto.RejectOfferFriendshipRequest;
 import ru.job4j.socialmedia.entity.FriendshipEntity;
 
 import java.time.Instant;
@@ -32,4 +34,5 @@ public interface FriendshipRepository {
     List<FriendshipEntity> findFriendships(
             UUID userId
     );
+
 }
