@@ -118,7 +118,7 @@ class FriendshipApiE2ETest {
     }
 
     @Test
-    void whenCreateOfferFriendshipThenNoTargetUser409() {
+    void whenCreateOfferFriendshipWithExistingRejectedThen409() {
         var fromUserId = UUID.fromString("77926b15-870c-4366-93e3-6ac74b61b894");
         var toUserId = UUID.fromString("fd9e3b80-9602-427f-87ec-5763c4afbcd8");
         var request = new CreateOfferFriendshipRequest()
@@ -146,7 +146,7 @@ class FriendshipApiE2ETest {
                 .uri("/api/offer-friendships/reject")
                 .body(rejectRequest)
                 .exchange()
-                .expectStatus().isOk();   // 200 или 204 — зависит от вашей реализации
+                .expectStatus().is2xxSuccessful();   // 200 или 204 — зависит от вашей реализации
 
         // 3. Повторно создать — заявка уже REJECTED → 409
         var response = restClient
