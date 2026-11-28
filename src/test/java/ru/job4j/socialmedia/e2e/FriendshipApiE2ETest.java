@@ -121,6 +121,32 @@ class FriendshipApiE2ETest {
     }
 
     @Test
+    void whenCreateOfferFriendshipWithoutToUserIdThen400AndNoOfferSaved() {
+        var fromUserId = UUID.fromString("77926b15-870c-4366-93e3-6ac74b61b894");
+        var request = new CreateOfferFriendshipRequest()
+                .fromUserId(fromUserId);        // toUserId = null
+
+        var response = restClient
+                .post()
+                .uri("/api/offer-friendships/create")
+                .body(request)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .returnResult(ProblemDetail.class);
+
+        var problem = response.getResponseBody();
+        assertThat(problem).isNotNull();
+        assertThat(problem.getStatus()).isEqualTo(400);
+
+        var count = jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM offer_friendships WHERE from_user_id = ?",
+                Integer.class,
+                fromUserId
+        );
+        assertThat(count).isZero();
+    }
+
+    @Test
     void whenCreateOfferFriendshipWithExistingRejectedThen409() {
         var fromUserId = UUID.fromString("77926b15-870c-4366-93e3-6ac74b61b894");
         var toUserId = UUID.fromString("fd9e3b80-9602-427f-87ec-5763c4afbcd8");
