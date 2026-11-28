@@ -10,8 +10,8 @@ import ru.job4j.socialmedia.exception.SelfFriendshipException;
 
 import java.net.URI;
 
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+@RestControllerAdvice(assignableTypes = FriendshipController.class)
+public class FriendshipExceptionHandler {
 
     @ExceptionHandler(SelfFriendshipException.class)
     public ProblemDetail handleSelfFriendship(SelfFriendshipException e) {
